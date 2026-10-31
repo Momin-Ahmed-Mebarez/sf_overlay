@@ -134,16 +134,17 @@ class MainWindow(QWidget):
         
 
     def change_current_character(self):
-        self.update_timer.stop()
-        self.current_character = self.characters[next(self.characters_indices)]
-        if(not self.status.get(self.current_character["name"],None)):
-            self.is_cd = True
-            self.set_character_status()
-            QTimer().singleShot(5000,self.disable_cd)
+        if not self.is_cd:
+            self.update_timer.stop()
+            self.current_character = self.characters[next(self.characters_indices)]
+            if(not self.status.get(self.current_character["name"],None)):
+                self.is_cd = True
+                self.set_character_status()
+                QTimer().singleShot(5000,self.disable_cd)
         
-        self.update_timers()
-        self.update_timer.start(1000)
-        self.character_name_label.setText(self.current_character["name"])      
+            self.update_timers()
+            self.update_timer.start(1000)
+            self.character_name_label.setText(self.current_character["name"])      
 
     #Keys emit
     def emit_display_hot_key(self):
