@@ -1,9 +1,8 @@
 #TODO Save the interface location between runs
 import sys
 
-from PyQt6.QtCore import Qt,pyqtSignal,QTimer
+from PyQt6.QtCore import Qt,pyqtSignal,QTimer,QCoreApplication
 from PyQt6.QtWidgets import QApplication,QGridLayout,QWidget,QLabel
-from PyQt6.QtCore import QCoreApplication
 from PyQt6.QtGui import QPixmap
 
 from sfhelpers.sf_logining import get_session,fill_server_map
@@ -65,17 +64,30 @@ class MainWindow(QWidget):
 
         self.dungeon_icon = QLabel("")
         self.dungeon_icon.setPixmap(QPixmap(str(HOME / "sfhelpers" / "resources" / "dungeon_icon.png")).scaled(36,36))
-        
+
+        self.city_guard_icon = QLabel("")
+        self.city_guard_icon.setPixmap(QPixmap(str(HOME / "sfhelpers" / "resources" / "city_guard_icon.png")).scaled(36,36))
+
+        self.gem_mine_icon = QLabel("")
+        self.gem_mine_icon.setPixmap(QPixmap(str(HOME / "sfhelpers" / "resources" / "gem_mine_icon.png")).scaled(36,36))
+
         self.arena_label = QLabel("")
         self.dungeon_label = QLabel("")
+        self.city_guard_label = QLabel("")
+        self.gem_mine_label = QLabel("")
+
         self.character_name_label = QLabel("")
 
-        self.main_layout.addWidget(self.character_name_label,0,0)
+        self.main_layout.addWidget(self.character_name_label,0,0,1,0,Qt.AlignmentFlag.AlignCenter)
 
         self.main_layout.addWidget(self.arena_icon,1,0)
         self.main_layout.addWidget(self.arena_label,1,1)
         self.main_layout.addWidget(self.dungeon_icon,2,0)
         self.main_layout.addWidget(self.dungeon_label,2,1)
+        self.main_layout.addWidget(self.city_guard_icon,3,0)
+        self.main_layout.addWidget(self.city_guard_label,3,1)
+        self.main_layout.addWidget(self.gem_mine_icon,4,0)
+        self.main_layout.addWidget(self.gem_mine_label,4,1)
 
         self.setLayout(self.main_layout)
         
@@ -89,9 +101,13 @@ class MainWindow(QWidget):
 
     def update_timers(self):
         target_character = self.current_character
-        self.arena_label.setText(calculate_remaining(target_character["timezone_diff"],self.status[self.current_character["name"]]["arena"]))
-        self.dungeon_label.setText(calculate_remaining(target_character["timezone_diff"],self.status[self.current_character["name"]]["characterstatus"]))
-    
+        current_status = self.status[self.current_character["name"]]
+
+        self.arena_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["arena"]))
+        self.dungeon_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["characterstatus"]["light_dungeon"]))
+        self.city_guard_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["characterstatus"]["city_guard"]))
+        self.gem_mine_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["fortress"]["gem_mine"]))
+        
     def disable_cd(self):
         self.is_cd = False
 
