@@ -106,8 +106,11 @@ class MainWindow(QWidget):
         self.arena_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["arena"]))
         self.dungeon_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["characterstatus"]["light_dungeon"]))
         self.city_guard_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["characterstatus"]["city_guard"]))
-        self.gem_mine_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["fortress"]["gem_mine"]))
-        
+        if(current_status.get("fortress","")):
+            self.gem_mine_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["fortress"]["gem_mine"]))
+        else:
+            self.gem_mine_label.setText("You don't have the fortress yet")
+    
     def disable_cd(self):
         self.is_cd = False
 
