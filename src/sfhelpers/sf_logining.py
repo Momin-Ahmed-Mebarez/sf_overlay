@@ -1,8 +1,8 @@
 import hashlib
 from curl_cffi import Session,requests
-from sfhelpers.defaults import LOGIN_URL,DEFAULT_HEADERS,SERVER_MAP_URL,SERVER_MAP
+from sfhelpers.defaults import LOGIN_URL,DEFAULT_HEADERS,SERVER_MAP_URL,SERVER_MAP,HASH_CONST
 
-HASH_CONST = "ahHoj2woo1eeChiech6ohphoB7Aithoh"
+
 
 def hash_password(password):
     password += HASH_CONST
