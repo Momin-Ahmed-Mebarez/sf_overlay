@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
     if(not credentials):
         credentials = obtain_credentials()  
-        save_credentials(credentials,file="credentials.json")      
+        save_credentials(credentials)      
             
     fill_server_map()
 
@@ -171,7 +171,3 @@ if __name__ == '__main__':
     mywindow = MainWindow()
     mywindow.show()
     app.exec()
-
-
-def test():
-    print("hello")
