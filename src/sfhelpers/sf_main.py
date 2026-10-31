@@ -6,7 +6,7 @@ from sfhelpers.defaults import ACCEPTED_CHARACTER_LOGIN_KEYS,SERVER_MAP
 CHARACTERS_URL = "https://sso.playa-games.com/json/client/characters"
 
 def get_characters(session):
-    resp = session.get(CHARACTERS_URL).json()
+    resp = session.get(CHARACTERS_URL, timeout=30).json()
     characters = [{"name": character["name"], "uuid": resp["uuid"],
                    "server_id": str(character["server_id"]),"character_id": character["id"]
                                         } for character in resp["data"]["characters"]]
@@ -20,7 +20,7 @@ def get_character_status(session,character_data):
 
     url = f"https://{SERVER_MAP.server_map[character_data["server_id"]]}/cmd.php?req=SFAccountCharLogin&params={params}&sid=0-00000000000000"
     
-    resp = session.get(url)
+    resp = session.get(url,timeout=30)
     resp_as_list = [tuple(value.split(":")) for value in (resp.text).split("&") if value.strip()]
     resp_dict = {k:ACCEPTED_CHARACTER_LOGIN_KEYS[k](v) for k,v in resp_as_list if k in ACCEPTED_CHARACTER_LOGIN_KEYS.keys()}
 
