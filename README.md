@@ -30,7 +30,7 @@ alt+c Changes the current displayed character (The first call will be slow as it
 ## Disclaimer1
 This script is not an official product of Playa Games and is not affiliated with Playa Games in any way. It is an independent project created for personal purposes, and its purpose is solely for personal use. Any use of this script to access or interact with Playa Games's products should comply with Playa Games's terms of service. I do not endorse or encourage any unauthorized use of Playa Games's services. All trademarks, registered trademarks and assets mentioned or used herein are the property of their respective owners.
 
-# Disclaimer
+# Disclaimer2
 This project is provided for personal purposes only.
 
 The author does not own, control, operate, or represent the product accessed through this project.
