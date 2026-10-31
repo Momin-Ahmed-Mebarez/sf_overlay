@@ -2,7 +2,7 @@
 import sys
 
 from PyQt6.QtCore import Qt,pyqtSignal,QTimer
-from PyQt6.QtWidgets import QMainWindow, QApplication,QGridLayout,QWidget,QLabel
+from PyQt6.QtWidgets import QApplication,QGridLayout,QWidget,QLabel
 from PyQt6.QtCore import QCoreApplication
 from PyQt6.QtGui import QPixmap
 
@@ -77,9 +77,8 @@ class MainWindow(QWidget):
         self.main_layout.addWidget(self.dungeon_icon,2,0)
         self.main_layout.addWidget(self.dungeon_label,2,1)
 
-
         self.setLayout(self.main_layout)
-
+        
         self.set_character_status()
         self.update_timers()
         self.update_timer.start(1000)
