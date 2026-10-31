@@ -15,12 +15,12 @@ def get_session(credentials):
     session = Session()
     session.headers.update(DEFAULT_HEADERS)
     
-    resp = session.post(LOGIN_URL,data=body,impersonate="chrome").json()
+    resp = session.post(LOGIN_URL,data=body,impersonate="chrome",timeout=30).json()
     session.headers.update({"Authorization":"Bearer " + resp["data"]["token"]["access_token"]})
 
     return session
 
 def fill_server_map():
-    resp = requests.get(SERVER_MAP_URL,headers=DEFAULT_HEADERS).json()["servers"]
+    resp = requests.get(SERVER_MAP_URL,headers=DEFAULT_HEADERS, timeout=30).json()["servers"]
     SERVER_MAP.server_map = ({str(server["i"]) : server["d"] for server in resp})
 
