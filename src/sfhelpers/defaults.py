@@ -1,6 +1,6 @@
 LOGIN_URL = "https://sso.playa-games.com/json/login?client_id=i43nwwnmfc5tced4jtuk4auuygqghud2yopx&auth_type=access_token"
 SERVER_MAP_URL = "https://sfgame.net/config.json"
-
+HASH_CONST = "ahHoj2woo1eeChiech6ohphoB7Aithoh"
 ACCEPTED_CHARACTER_LOGIN_KEYS = {"timestamp":lambda x: int(x)
                                  ,"arena":lambda x: int(x.split("/")[0]),
                                  "characterstatus": lambda x: int(x.split("/")[21])}
