@@ -3,7 +3,10 @@ SERVER_MAP_URL = "https://sfgame.net/config.json"
 HASH_CONST = "ahHoj2woo1eeChiech6ohphoB7Aithoh"
 ACCEPTED_CHARACTER_LOGIN_KEYS = {"timestamp":lambda x: int(x)
                                  ,"arena":lambda x: int(x.split("/")[0]),
-                                 "characterstatus": lambda x: int(x.split("/")[21])}
+                                 "characterstatus": lambda x: {"city_guard":int(x.split("/")[3]),
+                                                               "light_dungeon":int(x.split("/")[21])},
+                                "fortress": lambda x:{"gem_mine":int(x.split("/")[23])}
+                                }
 DEFAULT_HEADERS = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
     'accept-language': 'en-US,en;q=0.9',
