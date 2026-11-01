@@ -1,4 +1,4 @@
-#TODO Save the interface location between runs
+
 import sys
 
 from PyQt6.QtCore import Qt,pyqtSignal,QTimer,QCoreApplication
@@ -25,6 +25,8 @@ class MainWindow(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.move(*tuple([int(cord) for cord in self.read_config()[0].split(":")]))
+
         self.dragging = False
         self.main_layout = QGridLayout(self)
         self.status = {}
@@ -117,24 +119,24 @@ class MainWindow(QWidget):
                 
                 for i,elemenet in enumerate(target_elements[::-1]):
                     self.main_layout.addWidget(elemenet,row,i)
-
-
+                    
         self.setLayout(self.main_layout)
         
     def read_config(self):
         try:
             with open(HOME / "config.txt","r") as f:
-                return f.readlines()
+                config = f.readlines()
+                if(config): return config
+                raise FileNotFoundError
         except FileNotFoundError:
             with open(HOME / "backup" / "config_backup.txt","r") as f:
                 config = f.read()
-            with open(HOME / "config.txt","w") as f:
-                f.write(config)
+            self.write_to_config(config)
             return self.read_config()
 
-
     def write_to_config(self,config):
-        pass
+        with open(HOME / "config.txt","w") as f:
+            f.write(config)
 
     def set_character_status(self):
         self.status[self.current_character["name"]] = get_character_status(self.session,self.current_character)
@@ -177,7 +179,13 @@ class MainWindow(QWidget):
         else:
             self.hide()
     
+    def write_current_position(self):
+        config = self.read_config()
+        config[0] = f"{self.x()}:{self.y()}\n"
+        self.write_to_config("".join(config))
+    
     def exit(self):
+        self.write_current_position()
         self.hot_keys_listener.stop()
         QCoreApplication.exit()
     
