@@ -120,11 +120,19 @@ class MainWindow(QWidget):
 
 
         self.setLayout(self.main_layout)
-
-    def read_config(self):
-        with open(HOME / "config.txt","r") as f:
-            return f.readlines()
         
+    def read_config(self):
+        try:
+            with open(HOME / "config.txt","r") as f:
+                return f.readlines()
+        except FileNotFoundError:
+            with open(HOME / "backup" / "config_backup.txt","r") as f:
+                config = f.read()
+            with open(HOME / "config.txt","w") as f:
+                f.write(config)
+            return self.read_config()
+
+
     def write_to_config(self,config):
         pass
 
