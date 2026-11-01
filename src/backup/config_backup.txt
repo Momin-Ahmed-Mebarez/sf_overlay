@@ -1,0 +1,5 @@
+0:0
+arena:1
+light_dungeon:1
+city_guard:1
+gem_mine:1
