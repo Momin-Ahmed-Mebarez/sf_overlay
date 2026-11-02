@@ -1,4 +1,3 @@
-#TODO Save the interface location between runs
 import sys
 
 from PyQt6.QtCore import Qt,pyqtSignal,QTimer,QCoreApplication
@@ -8,11 +7,12 @@ from PyQt6.QtGui import QPixmap
 from sfhelpers.sf_logining import get_session,fill_server_map
 from sfhelpers.sf_main import get_characters,get_character_status,calculate_remaining
 from credential_manager import load_credentials,obtain_credentials,save_credentials
+from display_config_popup import Popup
+
 
 from pathlib import Path
 from itertools import cycle
 from pynput import keyboard
-
 
 HOME = Path(__file__).resolve().parent
 credentials = {}
@@ -25,11 +25,17 @@ class MainWindow(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.move(*tuple([int(cord) for cord in self.read_config()[0].split(":")]))
+
+
         self.dragging = False
         self.main_layout = QGridLayout(self)
         self.status = {}
+        self.elements = []
         self.session = get_session(credentials)
         self.is_cd = False
+        self.config_popup = Popup()
+        self.config_popup.save_signal.connect(self.handle_save_click)
         
         self.characters = get_characters(self.session)
         
@@ -62,8 +68,8 @@ class MainWindow(QWidget):
         self.arena_icon = QLabel("")
         self.arena_icon.setPixmap(QPixmap(str(HOME / "sfhelpers" / "resources" / "arena_icon.png")).scaled(36,36))
 
-        self.dungeon_icon = QLabel("")
-        self.dungeon_icon.setPixmap(QPixmap(str(HOME / "sfhelpers" / "resources" / "dungeon_icon.png")).scaled(36,36))
+        self.light_dungeon_icon = QLabel("")
+        self.light_dungeon_icon.setPixmap(QPixmap(str(HOME / "sfhelpers" / "resources" / "dungeon_icon.png")).scaled(36,36))
 
         self.city_guard_icon = QLabel("")
         self.city_guard_icon.setPixmap(QPixmap(str(HOME / "sfhelpers" / "resources" / "city_guard_icon.png")).scaled(36,36))
@@ -72,29 +78,78 @@ class MainWindow(QWidget):
         self.gem_mine_icon.setPixmap(QPixmap(str(HOME / "sfhelpers" / "resources" / "gem_mine_icon.png")).scaled(36,36))
 
         self.arena_label = QLabel("")
-        self.dungeon_label = QLabel("")
+        self.light_dungeon_label = QLabel("")
         self.city_guard_label = QLabel("")
         self.gem_mine_label = QLabel("")
-
         self.character_name_label = QLabel("")
 
-        self.main_layout.addWidget(self.character_name_label,0,0,1,0,Qt.AlignmentFlag.AlignCenter)
+        self.arena_label.setObjectName("arena_label")
+        self.arena_icon.setObjectName("arena_icon")
+        self.elements.append(self.arena_label)
+        self.elements.append(self.arena_icon)
 
-        self.main_layout.addWidget(self.arena_icon,1,0)
-        self.main_layout.addWidget(self.arena_label,1,1)
-        self.main_layout.addWidget(self.dungeon_icon,2,0)
-        self.main_layout.addWidget(self.dungeon_label,2,1)
-        self.main_layout.addWidget(self.city_guard_icon,3,0)
-        self.main_layout.addWidget(self.city_guard_label,3,1)
-        self.main_layout.addWidget(self.gem_mine_icon,4,0)
-        self.main_layout.addWidget(self.gem_mine_label,4,1)
+        self.light_dungeon_label.setObjectName("light_dungeon_label")
+        self.light_dungeon_icon.setObjectName("light_dungeon_icon")
+        self.elements.append(self.light_dungeon_label)
+        self.elements.append(self.light_dungeon_icon)
 
-        self.setLayout(self.main_layout)
+        self.city_guard_label.setObjectName("city_guard_label")
+        self.city_guard_icon.setObjectName("city_guard_icon")
+        self.elements.append(self.city_guard_label)
+        self.elements.append(self.city_guard_icon)
+
+        self.gem_mine_label.setObjectName("gem_mine_label")
+        self.gem_mine_icon.setObjectName("gem_mine_icon")
+        self.elements.append(self.gem_mine_label)
+        self.elements.append(self.gem_mine_icon)
         
+        self.main_layout.addWidget(self.character_name_label,0,0,1,0,Qt.AlignmentFlag.AlignCenter)
+        
+        self.create_main_layout()
+        self.config_popup.read_rows_config(self.read_config())
+
+        
+
         self.set_character_status()
         self.update_timers()
         self.update_timer.start(1000)
         self.character_name_label.setText(self.current_character["name"])
+
+    def create_main_layout(self):
+        while(self.layout().count() != 1):
+            item = self.main_layout.takeAt(1)
+
+            if item.widget():
+                item.widget().setParent(None)
+        
+        config_layout = self.read_config()[1:]
+
+        row = 0
+        for line in config_layout:
+            config = line.split(":")
+            if(config[1].strip() == "1"):
+                row += 1
+                target_elements = [element for element in self.elements if element.objectName() == config[0] + "_label" or element.objectName() == config[0]  + "_icon"]
+                
+                for i,elemenet in enumerate(target_elements[::-1]):
+                    self.main_layout.addWidget(elemenet,row,i)
+                    
+        
+    def read_config(self):
+        try:
+            with open(HOME / "config.txt","r") as f:
+                config = f.readlines()
+                if(config): return config
+                raise FileNotFoundError
+        except FileNotFoundError:
+            with open(HOME / "backup" / "config_backup.txt","r") as f:
+                config = f.read()
+            self.write_to_config(config)
+            return self.read_config()
+
+    def write_to_config(self,config):
+        with open(HOME / "config.txt","w") as f:
+            f.write(config)
 
     def set_character_status(self):
         self.status[self.current_character["name"]] = get_character_status(self.session,self.current_character)
@@ -104,15 +159,33 @@ class MainWindow(QWidget):
         current_status = self.status[self.current_character["name"]]
 
         self.arena_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["arena"]))
-        self.dungeon_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["characterstatus"]["light_dungeon"]))
+        self.light_dungeon_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["characterstatus"]["light_dungeon"]))
         self.city_guard_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["characterstatus"]["city_guard"]))
         if(current_status.get("fortress","")):
             self.gem_mine_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["fortress"]["gem_mine"]))
         else:
-            self.gem_mine_label.setText("You don't have the fortress yet")
+            self.gem_mine_label.setText("Locked")
     
     def disable_cd(self):
         self.is_cd = False
+
+    def handle_save_click(self,config):
+        new_config = self.get_config_from_popup(config)
+        
+        self.write_to_config(new_config)
+        self.create_main_layout()
+
+        self.config_popup.hide()
+
+    
+    def get_config_from_popup(self,config):
+        old_position = self.read_config()[0]
+
+        new_config = "\n".join([":".join(element) for element in config])
+        
+        return old_position + new_config
+
+        
 
 
     #Mouse events used for dragging the interface
@@ -120,6 +193,8 @@ class MainWindow(QWidget):
         if event.button() == Qt.MouseButton.LeftButton:
             self.dragging = True
             self.offset = event.pos()
+        if event.button() == Qt.MouseButton.RightButton:
+            self.config_popup.show()
 
     def mouseMoveEvent(self, event):
         if self.dragging:
@@ -136,8 +211,14 @@ class MainWindow(QWidget):
             self.show()
         else:
             self.hide()
+
+    def write_current_position(self):
+        config = self.read_config()
+        config[0] = f"{self.x()}:{self.y()}\n"
+        self.write_to_config("".join(config))
     
     def exit(self):
+        self.write_current_position()
         self.hot_keys_listener.stop()
         QCoreApplication.exit()
     
