@@ -1,15 +1,31 @@
-from PyQt6.QtWidgets import QWidget,QHBoxLayout,QLabel,QCheckBox,QApplication,QListWidget,QListWidgetItem
-from PyQt6.QtCore import Qt,QMimeData
-from PyQt6.QtGui import QDrag
+from PyQt6.QtWidgets import (QWidget,QHBoxLayout,QVBoxLayout,QPushButton,QLabel,QCheckBox
+                             ,QApplication,QListWidget,QListWidgetItem)
+from pathlib import Path
+
 import sys
+
+
+HOME = Path(__file__).resolve().parent
+
+def read_config():
+     with open(HOME / "config.txt","r") as f:
+         return f.readlines()
 
 class Popup(QWidget):
     def __init__(self):
         super().__init__()
-        self.list_layout = QListWidget(self)
+        self.list_layout = QListWidget()
         self.list_layout.setDragDropMode(QListWidget.DragDropMode.InternalMove)
 
-        self.list_layout.show()
+        self.save_button = QPushButton("Save")
+        self.save_button.clicked.connect(self.save_config)
+        
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.addWidget(self.list_layout)
+        self.main_layout.addWidget(self.save_button)
+
+        self.read_rows_config(read_config())
+
 
     def add_row(self,text,checkbox_status):
         self.item = QListWidgetItem()
@@ -28,9 +44,14 @@ class Popup(QWidget):
         self.list_layout.setItemWidget(self.item,self.row_widget)
     
 
-    def read_rows_config(self,elements=0,config=0):
-        self.add_row("asd",True)
-        self.add_row("test",False)
+    def read_rows_config(self,configs):
+        for config in configs[1:]:
+            splitted_config = config.split(":")
+
+            self.add_row(splitted_config[0],int(splitted_config[1]))
+    
+    def save_config(self):
+        pass
 
 
 if __name__ == '__main__':
@@ -38,5 +59,3 @@ if __name__ == '__main__':
     mywindow = Popup()
     mywindow.show()
     app.exec()
-
-
