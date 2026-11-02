@@ -123,7 +123,7 @@ class MainWindow(QWidget):
                 item.widget().setParent(None)
         
         config_layout = self.read_config()[1:]
-        print(config_layout)
+
         row = 0
         for line in config_layout:
             config = line.split(":")
