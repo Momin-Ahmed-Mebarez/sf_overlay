@@ -1,4 +1,3 @@
-
 import sys
 
 from PyQt6.QtCore import Qt,pyqtSignal,QTimer,QCoreApplication
@@ -8,11 +7,12 @@ from PyQt6.QtGui import QPixmap
 from sfhelpers.sf_logining import get_session,fill_server_map
 from sfhelpers.sf_main import get_characters,get_character_status,calculate_remaining
 from credential_manager import load_credentials,obtain_credentials,save_credentials
+from display_config_popup import Popup
+
 
 from pathlib import Path
 from itertools import cycle
 from pynput import keyboard
-
 
 HOME = Path(__file__).resolve().parent
 credentials = {}
@@ -27,12 +27,15 @@ class MainWindow(QWidget):
         super().__init__()
         self.move(*tuple([int(cord) for cord in self.read_config()[0].split(":")]))
 
+
         self.dragging = False
         self.main_layout = QGridLayout(self)
         self.status = {}
         self.elements = []
         self.session = get_session(credentials)
         self.is_cd = False
+        self.config_popup = Popup()
+        self.config_popup.save_signal.connect(self.handle_save_click)
         
         self.characters = get_characters(self.session)
         
@@ -99,9 +102,13 @@ class MainWindow(QWidget):
         self.gem_mine_icon.setObjectName("gem_mine_icon")
         self.elements.append(self.gem_mine_label)
         self.elements.append(self.gem_mine_icon)
+        
         self.main_layout.addWidget(self.character_name_label,0,0,1,0,Qt.AlignmentFlag.AlignCenter)
         
         self.create_main_layout()
+        self.config_popup.read_rows_config(self.read_config())
+
+        
 
         self.set_character_status()
         self.update_timers()
@@ -110,6 +117,7 @@ class MainWindow(QWidget):
 
     def create_main_layout(self):
         config_layout = self.read_config()[1:]
+        print(config_layout)
         row = 0
         for line in config_layout:
             config = line.split(":")
@@ -151,10 +159,27 @@ class MainWindow(QWidget):
         if(current_status.get("fortress","")):
             self.gem_mine_label.setText(calculate_remaining(target_character["timezone_diff"],current_status["fortress"]["gem_mine"]))
         else:
-            self.gem_mine_label.setText("You don't have the fortress yet")
+            self.gem_mine_label.setText("Locked")
     
     def disable_cd(self):
         self.is_cd = False
+
+    def handle_save_click(self,config):
+        new_config = self.get_config_from_popup(config)
+        
+        self.write_to_config(new_config)
+        self.create_main_layout()
+
+        self.config_popup.hide()
+    
+    def get_config_from_popup(self,config):
+        old_position = self.read_config()[0]
+
+        new_config = "\n".join([":".join(element) for element in config])
+        
+        return old_position + new_config
+
+        
 
 
     #Mouse events used for dragging the interface
@@ -162,6 +187,8 @@ class MainWindow(QWidget):
         if event.button() == Qt.MouseButton.LeftButton:
             self.dragging = True
             self.offset = event.pos()
+        if event.button() == Qt.MouseButton.RightButton:
+            self.config_popup.show()
 
     def mouseMoveEvent(self, event):
         if self.dragging:
@@ -178,7 +205,7 @@ class MainWindow(QWidget):
             self.show()
         else:
             self.hide()
-    
+
     def write_current_position(self):
         config = self.read_config()
         config[0] = f"{self.x()}:{self.y()}\n"
