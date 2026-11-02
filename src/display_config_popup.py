@@ -1,17 +1,10 @@
 from PyQt6.QtWidgets import (QWidget,QHBoxLayout,QVBoxLayout,QPushButton,QLabel,QCheckBox
-                             ,QApplication,QListWidget,QListWidgetItem)
-from pathlib import Path
-
-import sys
-
-
-HOME = Path(__file__).resolve().parent
-
-def read_config():
-     with open(HOME / "config.txt","r") as f:
-         return f.readlines()
+                            ,QListWidget,QListWidgetItem)
+from PyQt6.QtCore import pyqtSignal
 
 class Popup(QWidget):
+    save_signal = pyqtSignal(list)
+
     def __init__(self):
         super().__init__()
         self.list_layout = QListWidget()
@@ -23,9 +16,6 @@ class Popup(QWidget):
         self.main_layout = QVBoxLayout(self)
         self.main_layout.addWidget(self.list_layout)
         self.main_layout.addWidget(self.save_button)
-
-        self.read_rows_config(read_config())
-
 
     def add_row(self,text,checkbox_status):
         self.item = QListWidgetItem()
@@ -51,11 +41,12 @@ class Popup(QWidget):
             self.add_row(splitted_config[0],int(splitted_config[1]))
     
     def save_config(self):
-        pass
+        config_list = []
+        for i in range(self.list_layout.count()):
+            item = self.list_layout.item(i)
+            widget = self.list_layout.itemWidget(item)
 
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    mywindow = Popup()
-    mywindow.show()
-    app.exec()
+            label_text = widget.findChild(QLabel).text()
+            checkbox_status = str(int(widget.findChild(QCheckBox).isChecked()))
+            config_list.append((label_text,checkbox_status))
+        self.save_signal.emit(config_list)
