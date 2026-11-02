@@ -18,6 +18,7 @@ Please check [IMPORTANT-NOTE](#IMPORTANT-NOTE) before running the script.
 python src/__main__.py
 ```
 ## Shortcuts
+Right click the widget to rearrange and/or disable/enable timers.<br>
 alt+s hide/unhide the overlay<br>
 alt+x Exits the overlay<br>
 alt+u Updates the current character <br>
@@ -29,8 +30,8 @@ alt+c Changes the current displayed character (The first call will be slow as it
 
 ## UPCOMING
 - Support of changing hotkeys
-- Support of disabling/enabling some timers
-- Support of rearranging timers
+- <s>Support of disabling/enabling some timers</s>
+- <s>Support of rearranging timers</s>
 - Sound notification when timer ends
 - Supporting more timers
 - Resource calculations
