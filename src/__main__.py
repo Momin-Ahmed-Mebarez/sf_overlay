@@ -116,8 +116,11 @@ class MainWindow(QWidget):
         self.character_name_label.setText(self.current_character["name"])
 
     def create_main_layout(self):
-        if(self.layout().count() != 1):
+        while(self.layout().count() != 1):
             item = self.main_layout.takeAt(1)
+
+            if item.widget():
+                item.widget().setParent(None)
         
         config_layout = self.read_config()[1:]
         print(config_layout)
@@ -131,7 +134,6 @@ class MainWindow(QWidget):
                 for i,elemenet in enumerate(target_elements[::-1]):
                     self.main_layout.addWidget(elemenet,row,i)
                     
-        self.setLayout(self.main_layout)
         
     def read_config(self):
         try:
