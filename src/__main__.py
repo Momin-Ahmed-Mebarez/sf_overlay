@@ -116,6 +116,9 @@ class MainWindow(QWidget):
         self.character_name_label.setText(self.current_character["name"])
 
     def create_main_layout(self):
+        if(self.layout().count() != 1):
+            item = self.main_layout.takeAt(1)
+        
         config_layout = self.read_config()[1:]
         print(config_layout)
         row = 0
@@ -171,6 +174,7 @@ class MainWindow(QWidget):
         self.create_main_layout()
 
         self.config_popup.hide()
+
     
     def get_config_from_popup(self,config):
         old_position = self.read_config()[0]
