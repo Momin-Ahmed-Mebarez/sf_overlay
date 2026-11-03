@@ -23,3 +23,13 @@ class TestCredentials:
         cred = load_credentials(HOME / file)
         
         assert cred == expected
+
+
+def test_config_equal_backup():
+    with open(HOME.parent / "config.txt") as f:
+        config = f.readlines()
+    with open(HOME.parent / "backup" / "config_backup.txt") as f:
+        backup = f.readlines()
+    
+    assert config[0].strip() == "0:0", "Coordinations aren't 0:0"
+    assert config == backup, "Forgot to update backup"
